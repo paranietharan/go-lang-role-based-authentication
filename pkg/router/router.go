@@ -1,33 +1,21 @@
 package router
 
 import (
-	"log"
-	"os"
+	"go-lang-role-based-authentication/pkg/controller"
+	"go-lang-role-based-authentication/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func StartServer(db *gorm.DB) {
-	port := os.Getenv("PORT")
+func StartServer() {
+	router := gin.Default()
+	router.POST("/signup", controller.SignUp())
+	router.POST("/login", controller.Login())
 
-	if port == "" {
-		log.Println("PORT variable not found in .env file")
-	}
+	protected := router.Group("/")
+	protected.Use(middleware.Authenticate())
+	protected.GET("/users", controller.GetUsers())
+	protected.GET("/users/:user_id", controller.GetUser())
 
-	router := gin.New()
-	router.Use(gin.Logger())
-
-	UserRoutes(router)
-	AuthRoutes(router)
-
-	router.GET("/api-1", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{"success": "Access granted for api-1"})
-	})
-
-	router.GET("/api-2", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{"success": "Access granted for api-2"})
-	})
-
-	router.Run(":" + port)
+	router.Run(":8080")
 }
