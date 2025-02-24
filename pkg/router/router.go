@@ -17,5 +17,9 @@ func StartServer() {
 	protected.GET("/users", controller.GetUsers())
 	protected.GET("/users/:user_id", controller.GetUser())
 
+	admin := router.Group("/admin")
+	admin.Use(middleware.Authenticate())
+	admin.GET("/hello", middleware.AdminOnly(), controller.Hello())
+
 	router.Run(":8080")
 }

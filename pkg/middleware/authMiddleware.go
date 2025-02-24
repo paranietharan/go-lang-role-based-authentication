@@ -53,3 +53,15 @@ func RoleMiddleware(requiredRole string) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func AdminOnly() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userType, exists := c.Get("usertype")
+		if !exists || userType != "ADMIN" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Access restricted to admin only"})
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
